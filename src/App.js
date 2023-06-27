@@ -79,6 +79,11 @@ export default function App() {
     setSelectedId(null);
   }
 
+  function handleAddWatched(movie){
+    setWatched(watched => [...watched, movie])
+
+  }
+
 
   useEffect(() => {
     // fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`).then(res => res.json()).then(data => setMovies(data.Search));
@@ -142,13 +147,14 @@ export default function App() {
       </Box>
       <Box>
         {selectedId ?
-          ( <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseId} /> )
+          ( <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseId} onAddWatched={handleAddWatched}/> )
           :
           (<>
           <Summery watched={watched}/>
           <WatchedMovieList watched={watched}/>
           </>)
-         } </Box>
+         } 
+      </Box>
       </Main>
     </>
   );
