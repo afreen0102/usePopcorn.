@@ -98,7 +98,7 @@ export default function App() {
       const data = await res.json();
       if(data.Response === "False") throw new Error("Movie not found!")
 
-      console.log(data);
+      // console.log(data);
 
       setMovies(data.Search);
       }
@@ -147,7 +147,7 @@ export default function App() {
       </Box>
       <Box>
         {selectedId ?
-          ( <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseId} onAddWatched={handleAddWatched}/> )
+          ( <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseId} onAddWatched={handleAddWatched} watched={watched}/> )
           :
           (<>
           <Summery watched={watched}/>
