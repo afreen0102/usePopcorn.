@@ -3,15 +3,12 @@ import { useEffect, useState } from 'react'
 import StarRating from '../StarRating'
 import Loader from './Loader';
 
-
 const KEY = "2b58588c";  
-
 
 const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
     const [ movie, setMovie ] = useState({});
     const [ isLoading, setIsLoading ] = useState(false);
     const [ userRating, setUserRating ] = useState(0);
-
 
     const { Title : title,
         Year : year,
@@ -23,17 +20,12 @@ const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
         Actors : actors,
         Director : director,
         Genre : genre 
-
     } = movie;
-
-    console.log(title, year);
-     
+    console.log(title, year);     
     useEffect(function() {
-
         
         async function getMovieDetails() {
 
-        
             setIsLoading(true);
 
             const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`);
@@ -42,10 +34,8 @@ const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
             if(data.Response === false) throw new Error("movie details not found");
             setMovie(data); 
 
-            setIsLoading(false);
-            
-        }
-        
+            setIsLoading(false);    
+        } 
         getMovieDetails();
     }, [selectedId]);
 
@@ -67,6 +57,31 @@ const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
     const isWatched = watched.map( movie => movie.imdbID ).includes(selectedId)
     console.log(isWatched);
     const watchedUserRating = watched.find( movie => movie.imdbID === selectedId )?.userRating
+
+    useEffect(function() {
+        if (!title) return;
+        document.title = `Movie | ${title}`;
+
+        return function() {
+            document.title = "usePopcorn";
+            console.log(`Clean up Effect for movie ${title}`);
+        }
+    }, [ title ]);
+
+    useEffect(() => {
+
+        function callback(e) {
+            if(e.code === 'Escape') {
+              onCloseMovie();
+            }
+          }
+
+        document.addEventListener('keydown', callback );
+
+        return function() {
+            document.removeEventListener('keydown', callback);
+        };
+      },[onCloseMovie]);
 
     return (
     
@@ -106,10 +121,7 @@ const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
             <p>Directed by {director}</p>
         </section>
             </>
-        }    
-
-        
-
+        } 
         </div>)
 }
 

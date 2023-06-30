@@ -80,19 +80,26 @@ export default function App() {
   }
 
   function handleAddWatched(movie){
-    setWatched(watched => [...watched, movie])
-
+    setWatched(watched => [...watched, movie]);
   }
+
+  function handleDeleteWatched(id) {
+    setWatched( watched => watched.filter( movie => movie.imdbID !== id));
+  }
+
+  
 
 
   useEffect(() => {
+
+    const controller = new AbortController();
     // fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`).then(res => res.json()).then(data => setMovies(data.Search));
     async function fetchMovies() {
       try{
       setIsLoading(true);
       setError("");
 
-      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`, {signal: controller.signal});
 
       if(!res.ok) throw new Error("Something went wrong with fetching movies");
       const data = await res.json();
@@ -101,10 +108,14 @@ export default function App() {
       // console.log(data);
 
       setMovies(data.Search);
+      setError("");
       }
       catch (err) {
         console.log(err.message);
+
+        if(err.name !== "AbortError") {
         setError(err.message);
+        }
       }
       finally{
         setIsLoading(false);
@@ -117,8 +128,12 @@ export default function App() {
       return;
     }
 
-
+    handleCloseId();
     fetchMovies();
+
+    return function() {
+      controller.abort();
+    }
   }, [ query ]);
 
   return (
@@ -151,7 +166,7 @@ export default function App() {
           :
           (<>
           <Summery watched={watched}/>
-          <WatchedMovieList watched={watched}/>
+          <WatchedMovieList watched={watched} handleDeleteWatched={handleDeleteWatched}/>
           </>)
          } 
       </Box>
