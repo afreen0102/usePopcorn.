@@ -80,7 +80,9 @@ export default function App() {
   }
 
   function handleAddWatched(movie){
-    setWatched(watched => [...watched, movie]);
+    setWatched(watched => [...watched, movie]); // this is asynchronous code 
+
+    localStorage.setItem('watched', JSON.stringify([...watched, movie]))
   }
 
   function handleDeleteWatched(id) {
