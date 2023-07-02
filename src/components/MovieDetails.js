@@ -2,6 +2,7 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import StarRating from '../StarRating'
 import Loader from './Loader';
+import { useKey } from '../useKey';
 
 const KEY = "2b58588c";  
 
@@ -67,21 +68,8 @@ const MovieDetails = ({selectedId, onCloseMovie, onAddWatched, watched}) => {
             console.log(`Clean up Effect for movie ${title}`);
         }
     }, [ title ]);
-
-    useEffect(() => {
-
-        function callback(e) {
-            if(e.code === 'Escape') {
-              onCloseMovie();
-            }
-          }
-
-        document.addEventListener('keydown', callback );
-
-        return function() {
-            document.removeEventListener('keydown', callback);
-        };
-      },[onCloseMovie]);
+  
+    useKey('Escape' , onCloseMovie)
 
     return (
     

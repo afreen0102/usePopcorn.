@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
+import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 import Navbar from "./components/Navbar";
 import Logo from "./components/Logo";
@@ -61,89 +63,34 @@ import Loader from "./components/Loader";
 //   },
 // ];
 
-const KEY = "2b58588c";  
 
 export default function App() {
-  const [ movies, setMovies ] = useState([]);
-  const [ watched, setWatched ] = useState(function() {
-    const storedValue = localStorage.getItem("watched");
-    return JSON.parse(storedValue);
-  });
-  // const [ watched, setWatched ] = useState([]);
-  const [ error, setError ] = useState("");
-  const [ isLoading, setIsLoading ] = useState(false);
-  const [ query, setQuery ] = useState("inception");
-  const [ selectedId, setSelectedId ] = useState(null);
+    const [ query, setQuery ] = useState("inception");
+    const [ selectedId, setSelectedId ] = useState(null);
+    const { movies, error, isLoading } = useMovies(query);
+    // const [ watched, setWatched ] = useState(function() {
+    // const storedValue = localStorage.getItem("watched");
+    // return JSON.parse(storedValue);
+    //  });
+    const [ watched, setWatched] = useLocalStorageState([], "watched");
 
-  function handleSelectedId(id) {
-    setSelectedId(selectedId => selectedId === id ? null : id );
-  }
-
-  function handleCloseId(){
-    setSelectedId(null);
-  }
-
-  function handleAddWatched(movie){
-    setWatched(watched => [...watched, movie]); // this is asynchronous code 
+    function handleSelectedId(id) {
+      setSelectedId(selectedId => selectedId === id ? null : id );
+    }
+    function handleCloseId(){
+      setSelectedId(null);
+    }
+    function handleAddWatched(movie){
+      setWatched(watched => [...watched, movie]); // this is asynchronous code 
 
     // localStorage.setItem('watched', JSON.stringify([...watched, movie]))
-  }
-
-  function handleDeleteWatched(id) {
-    setWatched( watched => watched.filter( movie => movie.imdbID !== id));
-  }
-
-  useEffect(() => {
-    localStorage.setItem("watched", JSON.stringify(watched));
-  }, [watched] );
-
-  useEffect(() => {
-
-    const controller = new AbortController();
-    // fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`).then(res => res.json()).then(data => setMovies(data.Search));
-    async function fetchMovies() {
-      try{
-      setIsLoading(true);
-      setError("");
-
-      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`, {signal: controller.signal});
-
-      if(!res.ok) throw new Error("Something went wrong with fetching movies");
-      const data = await res.json();
-      if(data.Response === "False") throw new Error("Movie not found!")
-
-      // console.log(data);
-
-      setMovies(data.Search);
-      setError("");
-      }
-      catch (err) {
-        console.log(err.message);
-
-        if(err.name !== "AbortError") {
-        setError(err.message);
-        }
-      }
-      finally{
-        setIsLoading(false);
-      }
     }
 
-    if( query.length <= 3){
-      setMovies([]);
-      setError("");
-      return;
+    function handleDeleteWatched(id) {
+       setWatched( watched => watched.filter( movie => movie.imdbID !== id));
     }
 
-    handleCloseId();
-    fetchMovies();
-
-    return function() {
-      controller.abort();
-    }
-  }, [ query ]);
-
-  return (
+    return (
     <> 
       <Navbar>
         <Logo />
